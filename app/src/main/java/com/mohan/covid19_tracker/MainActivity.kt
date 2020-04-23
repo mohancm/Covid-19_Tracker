@@ -21,12 +21,16 @@ class MainActivity : AppCompatActivity() {
         list_view.addHeaderView(LayoutInflater.from(this).inflate(R.layout.item_header,list_view,false))
 
         fetchResults()
+        swipeToRefresh.setOnRefreshListener {
+            fetchResults()
+        }
     }
 
     private fun fetchResults() {
         GlobalScope.launch {
-            val response = withContext(Dispatchers.IO) { Client.api.execute() }
+            val response = withContext(Dispatchers.IO) { Client.api.clone().execute() }
             if (response.isSuccessful){
+                swipeToRefresh.isRefreshing = false
                 // Log.i("info", response.body?.string())
                 val data = Gson().fromJson(response.body?.string(),Response::class.java)
                 launch(Dispatchers.Main){
